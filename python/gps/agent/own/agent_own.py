@@ -13,14 +13,19 @@ except ImportError:  # user does not have tf installed.
 
 
 class AgentOwn(Agent):
+    """
+    For own agent.
+    """
     def __init__(self, hyperparams):
-        config = deepcopy(AGENT_OWN)
+        config = copy.deepcopy(AGENT_OWN)
         config.update(hyperparams)
         Agent.__init__(self, config)
 
         self._setup_conditions()
 
-        self.x0 = self._hyperparams["x0"]
+        self._setup_world(self._hyperparams["world"],
+                          self._hyperparams["target_state"],
+                          self._hyperparams["render"])
 
     def _setup_conditions(self):
         """
@@ -31,6 +36,14 @@ class AgentOwn(Agent):
         for field in ('x0', 'x0var', 'pos_body_idx', 'pos_body_offset',
                       'noisy_body_idx', 'noisy_body_var'):
             self._hyperparams[field] = setup(self._hyperparams[field], conds)
+
+    def _setup_world(self, world, target, render):
+        """
+        Helper method for handling setup of the Box2D world.
+        """
+        self.x0 = self._hyperparams["x0"]
+        self._worlds = [world(self.x0[i], target, render)
+                        for i in range(self._hyperparams['conditions'])]
 
     def sample(self, policy, condition, verbose=True, save=True, noisy=True):
         """
@@ -44,11 +57,11 @@ class AgentOwn(Agent):
             noisy: Whether or not to use noise during sampling.
         """
 
-        if TfPolicy is not None:  # user has tf installed.
-            if isinstance(policy, TfPolicy):
-                self._init_tf(policy.dU)
+        # if TfPolicy is not None:  # user has tf installed.
+        #     if isinstance(policy, TfPolicy):
+        #         self._init_tf(policy.dU)
 
-        self.reset(condition)
+        self._worlds[condition].reset()
 
         own_X = self._hyperparams['x0'][condition]
         new_sample = self._init_sample(condition)
@@ -66,7 +79,7 @@ class AgentOwn(Agent):
             U[t, :] = policy.act(X_t, obs_t, t, noise[t, :])
             if (t + 1) < self.T:
                 for _ in range(self._hyperparams['substeps']):
-                    self._world[condition].step(U[t, :])
+                    self._worlds[condition].step(U[t, :])
                 own_X = self._worlds[condition].get_state()
                 self._set_sample(new_sample, own_X, t)
         new_sample.set(ACTION, U)

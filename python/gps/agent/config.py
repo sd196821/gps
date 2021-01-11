@@ -77,5 +77,6 @@ AGENT_BOX2D = {
 }
 
 AGENT_OWN = {
-    'int_state': np.array([0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.])
+    'int_state': np.array([0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.]),
+    'render': False
 }
