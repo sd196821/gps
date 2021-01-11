@@ -75,3 +75,7 @@ AGENT_MUJOCO = {
 AGENT_BOX2D = {
     'render': True,
 }
+
+AGENT_OWN = {
+    'int_state': np.array([0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.])
+}
