@@ -6,6 +6,9 @@ from gps.agent.agent_utils import generate_noise, setup
 from gps.agent.config import AGENT_OWN
 from gps.proto.gps_pb2 import ACTION
 from gps.sample.sample import Sample
+
+from QuadSim.dynamics.quadrotor import Drone
+
 try:
     from gps.algorithm.policy.tf_policy import TfPolicy
 except ImportError:  # user does not have tf installed.
@@ -23,9 +26,7 @@ class AgentOwn(Agent):
 
         self._setup_conditions()
 
-        self._setup_world(self._hyperparams["world"],
-                          self._hyperparams["target_state"],
-                          self._hyperparams["render"])
+        self._setup_world()
 
     def _setup_conditions(self):
         """
@@ -37,12 +38,12 @@ class AgentOwn(Agent):
                       'noisy_body_idx', 'noisy_body_var'):
             self._hyperparams[field] = setup(self._hyperparams[field], conds)
 
-    def _setup_world(self, world, target, render):
+    def _setup_world(self):
         """
         Helper method for handling setup of the Box2D world.
         """
         self.x0 = self._hyperparams["x0"]
-        self._worlds = [world(self.x0[i], target, render)
+        self._worlds = [Drone().reset(self.x0[i])
                         for i in range(self._hyperparams['conditions'])]
 
     def sample(self, policy, condition, verbose=True, save=True, noisy=True):
@@ -61,7 +62,7 @@ class AgentOwn(Agent):
         #     if isinstance(policy, TfPolicy):
         #         self._init_tf(policy.dU)
 
-        self._worlds[condition].reset()
+        # self._worlds[condition].reset()
 
         own_X = self._hyperparams['x0'][condition]
         new_sample = self._init_sample(condition)
