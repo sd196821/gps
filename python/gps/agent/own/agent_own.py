@@ -7,7 +7,7 @@ from gps.agent.config import AGENT_OWN
 from gps.proto.gps_pb2 import ACTION
 from gps.sample.sample import Sample
 
-from QuadSim.dynamics.quadrotor import Drone
+from gps.agent.own.quadrotor import Drone
 
 try:
     from gps.algorithm.policy.tf_policy import TfPolicy
@@ -19,6 +19,7 @@ class AgentOwn(Agent):
     """
     For own agent.
     """
+
     def __init__(self, hyperparams):
         config = copy.deepcopy(AGENT_OWN)
         config.update(hyperparams)
@@ -99,4 +100,4 @@ class AgentOwn(Agent):
 
     def _set_sample(self, sample, own_X, t):
         for sensor in own_X.keys():
-            sample.set(sensor, np.array(own_X[sensor]), t=t+1)
+            sample.set(sensor, np.array(own_X[sensor]), t=t + 1)
