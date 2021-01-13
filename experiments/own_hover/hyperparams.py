@@ -52,7 +52,7 @@ agent = {
     'conditions': common['conditions'],
     'pos_body_idx': np.array([]),
     'pos_body_offset': np.array([]),
-    'T': 100,
+    'T': 200,
     'sensor_dims': SENSOR_DIMS,
     'state_include': [END_EFFECTOR_POINTS], #END_EFFECTOR_POINTS
     'obs_include': [],
@@ -64,7 +64,7 @@ algorithm = {
 }
 
 algorithm['init_traj_distr'] = {
-    'type': init_pd,
+    'type': init_lqr,
     'init_var': 5.0,
     'pos_gains': 0.0,
     'dQ': SENSOR_DIMS[ACTION],
