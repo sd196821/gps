@@ -16,7 +16,8 @@ from gps.algorithm.cost.cost_sum import CostSum
 from gps.algorithm.dynamics.dynamics_lr_prior import DynamicsLRPrior
 from gps.algorithm.dynamics.dynamics_prior_gmm import DynamicsPriorGMM
 from gps.algorithm.traj_opt.traj_opt_lqr_python import TrajOptLQRPython
-from gps.algorithm.policy.lin_gauss_init import init_pd
+# from gps.algorithm.policy.lin_gauss_init import init_pd
+from gps.algorithm.policy.lin_gauss_init import init_lqr
 from gps.proto.gps_pb2 import END_EFFECTOR_POINTS, ACTION
 from gps.gui.config import generate_experiment_info
 
@@ -46,12 +47,9 @@ agent = {
     'target_state': np.array([0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]),
     'render': False,
     'x0': np.array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]),
-    'rk': 0,
     'dt': 0.01,
     'substeps': 1,
     'conditions': common['conditions'],
-    'pos_body_idx': np.array([]),
-    'pos_body_offset': np.array([]),
     'T': 200,
     'sensor_dims': SENSOR_DIMS,
     'state_include': [END_EFFECTOR_POINTS], #END_EFFECTOR_POINTS
@@ -63,19 +61,31 @@ algorithm = {
     'conditions': common['conditions'],
 }
 
+# algorithm['init_traj_distr'] = {
+#     'type': init_pd,
+#     'init_var': 5.0,
+#     'pos_gains': 1.0,
+#     'dQ': SENSOR_DIMS[ACTION],
+#     'dt': agent['dt'],
+#     'T': agent['T'],
+# }
+
 algorithm['init_traj_distr'] = {
-    'type': init_pd,
-    'init_var': 5.0,
-    'pos_gains': 1.0,
-    'dQ': SENSOR_DIMS[ACTION],
+    'type': init_lqr,
+    'init_gains': np.zeros(SENSOR_DIMS[ACTION]),
+    'init_acc': np.zeros(SENSOR_DIMS[ACTION]),
+    'init_var': 1.0,
+    'stiffness': 1.0,
+    'stiffness_vel': 0.5,
+    'final_weight': 50.0,
     'dt': agent['dt'],
     'T': agent['T'],
 }
 
-# action_cost = {
-#     'type': CostAction,
-#     'wu': np.array([5e-5, 5e-5, 5e-5, 5e-5])
-# }
+action_cost = {
+    'type': CostAction,
+    'wu': np.array([1, 1, 1, 1])
+}
 
 state_cost = {
     'type': CostState,
@@ -116,9 +126,10 @@ config = {
     'common': common,
     'verbose_trials': 0,
     'agent': agent,
-    'gui_on': True,
+    'gui_on': False,
     'algorithm': algorithm,
-    'dQ': algorithm['init_traj_distr']['dQ'],
+    # dQ is only for init_pd
+    # 'dQ': algorithm['init_traj_distr']['dQ'],
 }
 
 common['info'] = generate_experiment_info(config)
