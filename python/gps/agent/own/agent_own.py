@@ -26,7 +26,6 @@ class AgentOwn(Agent):
         Agent.__init__(self, config)
 
         self._setup_conditions()
-
         self._setup_world()
 
     def _setup_conditions(self):
@@ -44,7 +43,7 @@ class AgentOwn(Agent):
         Helper method for handling setup of the Box2D world.
         """
         self.x0 = self._hyperparams["x0"]
-        self._worlds = [Drone().reset(self.x0[i])
+        self._worlds = [Drone(self.x0[i])
                         for i in range(self._hyperparams['conditions'])]
 
     def sample(self, policy, condition, verbose=True, save=True, noisy=True):
@@ -63,10 +62,10 @@ class AgentOwn(Agent):
         #     if isinstance(policy, TfPolicy):
         #         self._init_tf(policy.dU)
 
-        # self._worlds[condition].reset()
+        self._worlds[condition].reset()
 
-        own_X = self._hyperparams['x0'][condition]
-        new_sample = self._init_sample(condition)
+        own_X = self._worlds[condition].get_state()
+        new_sample = self._init_sample(own_X)
         U = np.zeros([self.T, self.dU])
 
         # Generate noise.

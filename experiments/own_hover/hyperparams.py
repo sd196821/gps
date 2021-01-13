@@ -17,12 +17,11 @@ from gps.algorithm.dynamics.dynamics_lr_prior import DynamicsLRPrior
 from gps.algorithm.dynamics.dynamics_prior_gmm import DynamicsPriorGMM
 from gps.algorithm.traj_opt.traj_opt_lqr_python import TrajOptLQRPython
 from gps.algorithm.policy.lin_gauss_init import init_pd
-from gps.proto.gps_pb2 import END_EFFECTOR_POINTS, END_EFFECTOR_POINT_VELOCITIES, ACTION
+from gps.proto.gps_pb2 import END_EFFECTOR_POINTS, ACTION
 from gps.gui.config import generate_experiment_info
 
 SENSOR_DIMS = {
-    END_EFFECTOR_POINTS: 3,
-    END_EFFECTOR_POINT_VELOCITIES: 3,
+    END_EFFECTOR_POINTS: 13,
     ACTION: 4
 }
 
@@ -44,7 +43,7 @@ if not os.path.exists(common['data_files_dir']):
 
 agent = {
     'type': AgentOwn,
-    'target_state': np.array([0, 0, 0]),
+    'target_state': np.array([0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]),
     'render': False,
     'x0': np.array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]),
     'rk': 0,
@@ -55,7 +54,7 @@ agent = {
     'pos_body_offset': np.array([]),
     'T': 100,
     'sensor_dims': SENSOR_DIMS,
-    'state_include': [END_EFFECTOR_POINTS, END_EFFECTOR_POINT_VELOCITIES],
+    'state_include': [END_EFFECTOR_POINTS], #END_EFFECTOR_POINTS
     'obs_include': [],
 }
 
@@ -73,10 +72,10 @@ algorithm['init_traj_distr'] = {
     'T': agent['T'],
 }
 
-action_cost = {
-    'type': CostAction,
-    'wu': np.array([5e-5, 5e-5])
-}
+# action_cost = {
+#     'type': CostAction,
+#     'wu': np.array([5e-5, 5e-5, 5e-5, 5e-5])
+# }
 
 state_cost = {
     'type': CostState,
@@ -90,8 +89,8 @@ state_cost = {
 
 algorithm['cost'] = {
     'type': CostSum,
-    'costs': [action_cost, state_cost],
-    'weights': [1.0, 1.0],
+    'costs': [state_cost],
+    'weights': [1.0],
 }
 
 algorithm['dynamics'] = {
@@ -117,7 +116,7 @@ config = {
     'common': common,
     'verbose_trials': 0,
     'agent': agent,
-    'gui_on': True,
+    'gui_on': False,
     'algorithm': algorithm,
     'dQ': algorithm['init_traj_distr']['dQ'],
 }

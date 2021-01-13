@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.integrate import RK45
-
+from gps.proto.gps_pb2 import END_EFFECTOR_POINTS
 
 class Drone():
     """Quadrotor class"""
-
-    def __init__(self):
+    name = "quad_hover"
+    def __init__(self, x0=None):
 
         self.dt = 0.01
         self.t0 = 0
@@ -25,7 +25,11 @@ class Drone():
         self.dim_state = 13  # x,y,z,vx,vy,vz,q1,q2,q3,q4,w1,w2,w3
         self.dim_u = 4
 
-        self.state = np.zeros(shape=self.dim_state)
+        if x0 is not None:
+            self.state = x0
+        else:
+            self.state = np.zeros(shape=self.dim_state)
+
         # self.initial_state = np.zeros(self.dim_state)
         # self.initial_state[6] = 1.0
         self.initial_state = np.array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
@@ -147,7 +151,8 @@ class Drone():
         Get system state
         :return: State of System
         """
-        return self.state
+        state = {END_EFFECTOR_POINTS: np.append(self.state, [])}
+        return state
 
     def get_time(self):
         """
