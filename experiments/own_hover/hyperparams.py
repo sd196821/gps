@@ -64,9 +64,9 @@ algorithm = {
 }
 
 algorithm['init_traj_distr'] = {
-    'type': init_lqr,
+    'type': init_pd,
     'init_var': 5.0,
-    'pos_gains': 0.0,
+    'pos_gains': 1.0,
     'dQ': SENSOR_DIMS[ACTION],
     'dt': agent['dt'],
     'T': agent['T'],
