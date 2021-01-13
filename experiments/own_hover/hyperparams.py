@@ -99,8 +99,8 @@ state_cost = {
 
 algorithm['cost'] = {
     'type': CostSum,
-    'costs': [state_cost],
-    'weights': [1.0],
+    'costs': [action_cost, state_cost],
+    'weights': [1.0, 1],
 }
 
 algorithm['dynamics'] = {
